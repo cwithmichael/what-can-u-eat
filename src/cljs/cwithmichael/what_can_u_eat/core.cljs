@@ -1,0 +1,99 @@
+(ns cwithmichael.what-can-u-eat.core
+  #_{:clj-kondo/ignore [:unresolved-var]}
+  (:require
+   [ajax.core :refer [POST GET]]
+   [uix.core :refer [$ defui]]
+   [uix.dom]))
+
+(defn get-value [val] (-> val .-target .-value))
+
+;; -------------------------
+;; Views 
+(defui filter-list [{:keys [handle-filter-change]}]
+  ($ :ul.filterList
+     ($ :li
+        ($ :input {:type "checkbox" :id "keto" :name "keto" :value "keto"
+                   :on-change #(handle-filter-change (get-value %))})
+        ($ :label {:for "keto"} "Keto Friendly"))
+     ($ :li
+        ($ :input {:type "checkbox" :id "tmau" :name "tmau" :value "tmau"
+                   :on-change #(handle-filter-change (get-value %))})
+        ($ :label {:htmlFor "tmau"} "TMAU Friendly"))))
+
+(defui message-view [{:keys [in-default-state? food-name missing-info? can-eat? nutrients]}]
+  (let [message (cond
+                  in-default-state? nil
+                  missing-info? ($ :span.messageTextFailure "Missing information to determine")
+                  can-eat? ($ :span.messageTextSuccess "You can eat it! Just make sure to watch your total daily intake.")
+                  :else ($ :span.messageTextFailure "You should probably not eat it."))
+        net-carbs (first (filter #(= (:nutrient-id %) 1005) nutrients))
+        sugar (first (filter #(= (:nutrient-id %) 2000) nutrients))
+        choline (first (filter #(= (:nutrient-id %) 1180) nutrients))]
+    ($ :div.message
+       message
+       (when (not= nil food-name) ($ :p (str "Food description: " food-name)))
+       (when (and (not= nil nutrients) (not missing-info?)) ($ :div.nutrients
+                                                               (when net-carbs ($ :span.nutrient (str "Net Carbs: " (:value net-carbs) (:unit-name net-carbs))))
+                                                               (when sugar ($ :span.nutrient (str "Sugars: " (:value sugar) (:unit-name sugar))))
+                                                               (when choline ($ :span.nutrient (str "Choline: " (:value choline) (:unit-name choline)))))))))
+
+(defui search-form [{:keys [handle-submit filters handle-filter-change]}]
+  (let [[query set-query!] (uix.core/use-state "")]
+    ($ :form.searchForm
+       ($ filter-list {:filters filters :handle-filter-change handle-filter-change})
+       ($ :input.searchBar {:placeholder "enter food"
+                            :type "text"
+                            :name "food"
+                            :onChange #(set-query! (get-value %))})
+       ($ :button.searchButton {:type "submit" :on-click #(handle-submit % query)} "Can I Eat It?"))))
+
+(defui home-page []
+  (let [[filters set-filters!] (uix.core/use-state [])
+        [food set-food!] (uix.core/use-state nil)
+        [can-eat? set-can-eat!] (uix.core/use-state false)
+        [nutrients set-nutrients!] (uix.core/use-state nil)
+        [in-default-state? set-in-default-state!] (uix.core/use-state true)
+        [in-loading-state? set-in-loading-state!] (uix.core/use-state false)
+        [missing-info? set-missing-info!] (uix.core/use-state false)
+        check-food (fn [food-data filters]
+                     #_{:clj-kondo/ignore [:unresolved-var]}
+                     (POST "http://localhost:3000/api/checkFood"
+                       {:handler (fn [response]
+                                   (println response)
+                                   (set-missing-info! (:missing-info response))
+                                   (set-can-eat! (:status response)))
+                        :params {:food food-data :filters filters}}))
+        handle-filter-change (fn [val]
+                               (if (some  #(= % val)  filters)
+                                 (set-filters! (into [] (filter #(not= % val) filters)))
+                                 (set-filters! (conj filters val))))
+        handle-submit (fn [e query]
+                        (.preventDefault e)
+                        (set-in-loading-state! true)
+                        (set-in-default-state! false)
+                        #_{:clj-kondo/ignore [:unresolved-var]}
+                        (GET (str "http://localhost:3000/api/food/" query)
+                          {:handler (fn [response]
+                                      (set-food! (:food response))
+                                      (set-nutrients! (-> response :food :food-nutrients))
+                                      (check-food response filters)
+                                      (set-in-loading-state! false))}))]
+    ($ :div.container
+       ($ :h1.heading "Can you eat it?")
+       ($ search-form {:handle-submit handle-submit
+                       :filters filters
+                       :handle-filter-change handle-filter-change})
+       (if in-loading-state? ($ :p.loadingMessage "Loading...")
+           ($ message-view {:in-default-state? in-default-state?
+                            :food-name (:description food)
+                            :missing-info? missing-info?
+                            :can-eat? can-eat?
+                            :nutrients nutrients})))))
+
+;; -------------------------
+;; Initialize app
+
+
+(defonce root (uix.dom/create-root (.getElementById js/document "app")))
+
+(defn ^:export ^:dev/once init! [] (uix.dom/render-root ($ home-page) root))

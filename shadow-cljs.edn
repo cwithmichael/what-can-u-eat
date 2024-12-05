@@ -1,0 +1,13 @@
+{:nrepl {:port 7002}
+ :source-paths ["src/cljs"]
+ :dependencies [[binaryage/devtools "1.0.3"]
+                [nrepl "0.8.3"]
+                [cider/cider-nrepl "0.30.0"]
+                [metosin/malli  "0.16.4"]
+                [cljs-ajax "0.7.5"] [com.pitch/uix.core "1.2.0"] [com.pitch/uix.dom "1.2.0"]]
+ :builds       {:app {:target     :browser
+                      :output-dir "resources/public/js"
+                      :asset-path "/js"
+                      :modules    {:app {:entries [cwithmichael.what-can-u-eat.core]
+                                         :init-fn cwithmichael.what-can-u-eat.core/init!}}
+                      :devtools   {:after-load cwithmichael.what-can-u-eat.core/mount-root}}}}

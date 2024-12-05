@@ -1,0 +1,102 @@
+.searchForm {
+  display: flex;
+  flex-direction: column;
+  width: 420px;
+}
+
+.searchBar {
+  background-color: rgb(255, 255, 255);
+  color: black;
+  margin-bottom: 6px;
+  text-align: center;
+  margin-top: 10px;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  margin-top: 40px;
+  justify-content: center;
+  align-items: center;
+}
+
+.heading {
+  margin-bottom: 10px;
+}
+.message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: left;
+  margin-top: 20px;
+}
+
+.messageTextFailure {
+  color: red;
+}
+
+.messageTextSuccess {
+  color: green;
+}
+
+.loadingMessage {
+  margin-top: 10px;
+}
+
+.filterList {
+  list-style: none;
+  padding: 0;
+}
+
+.nutrients {
+  margin: 0;
+}
+
+.nutrient {
+  padding: 0 10px 0 0;
+  font-size: large;
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+@media (prefers-color-scheme: dark) {
+  html {
+    color-scheme: dark;
+  }
+}

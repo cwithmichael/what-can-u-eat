@@ -1,0 +1,8 @@
+{:full-name "cwithmichael/what-can-u-eat"
+ :ns-name   "cwithmichael.what-can-u-eat"
+ :sanitized "cwithmichael/what_can_u_eat"
+ :name      "what-can-u-eat"
+ :modules   {:root         "modules"
+             :repositories [{:url  "https://github.com/kit-clj/modules.git"
+                             :tag  "master"
+                             :name "kit-modules"}]}}
