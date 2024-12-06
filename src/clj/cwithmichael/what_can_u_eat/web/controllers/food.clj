@@ -3,8 +3,9 @@
    [cheshire.core :refer [parse-string]]
    [clj-http.client :as client]
    [clojure.string]
-   [taoensso.carmine :as car :refer [wcar]]
-   [ring.util.http-response :as http-response]))
+   [clojure.tools.logging :as log]
+   [ring.util.http-response :as http-response]
+   [taoensso.carmine :as car :refer [wcar]]))
 
 (def nutrient-map {:choline 1180
                    :carbs 1005
@@ -70,11 +71,21 @@
 
 (def storage "food-cache")
 
+(defn check-cache [cache query]
+  (try
+    (wcar cache (car/hget storage query))
+    (catch Exception e (log/error e))))
+
+(defn update-cache [cache query data]
+  (try
+    (wcar cache (car/hset storage query data))
+    (catch Exception e (log/error e))))
+
 (defn get-food [{:keys [cache secrets]} request]
   (let [query (:food (:path-params request))
-        saved-food (wcar cache (car/hget storage query))]
+        saved-food (check-cache cache query)]
     (if (nil? saved-food)
       (let [data (fetch-food-data-from-api (:usda-api-key secrets) query)]
-        (wcar cache (car/hset storage query data))
+        (update-cache cache query data)
         (http-response/ok {:food (convert-usda-food-to-food  data)}))
       (http-response/ok {:food (convert-usda-food-to-food  saved-food)}))))
