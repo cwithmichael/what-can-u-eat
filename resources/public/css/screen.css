@@ -1,7 +1,7 @@
 .searchForm {
   display: flex;
   flex-direction: column;
-  width: 420px;
+  width: 50%;
 }
 
 .searchBar {
@@ -46,7 +46,6 @@
 .message {
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: left;
   margin-top: 20px;
 }
@@ -62,6 +61,11 @@
 
 .messageTextSuccess {
   color: green;
+}
+
+.toolTip {
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 .loadingMessage {
@@ -81,6 +85,7 @@
 .nutrients {
   margin: 0;
   padding-top: 10px;
+  width: 100%;
 }
 
 .nutrient {

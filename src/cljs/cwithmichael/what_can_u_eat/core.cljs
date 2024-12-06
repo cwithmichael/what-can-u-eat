@@ -21,18 +21,29 @@
 (defn parse-nutrients [nutrients tag]
   (first (filter #(= (:nutrient-id %) (tag nutrient-map)) nutrients)))
 
+(def keto-tip "The keto diet, or ketogenic diet, is a low-carb, high-fat diet that aims to: Promote weight loss, Improve mental clarity, and Increase energy levels")
+(def tmau-tip "TMAU occurs when the body produces too much trimethylamine (TMA), a volatile amine that's a byproduct of choline metabolism by gut bacteria. TMA builds up in the body and is released in sweat, urine, and breath, causing a strong odor.")
+
 ;; -------------------------
 ;; Views 
 (defui filter-list [{:keys [handle-filter-change]}]
-  ($ :ul.filterList
-     ($ :li
-        ($ :input {:type "checkbox" :id "keto" :name "keto" :value "keto"
-                   :on-change #(handle-filter-change (get-value %))})
-        ($ :label.filterLabel {:for "keto"} "Keto Friendly"))
-     ($ :li
-        ($ :input {:type "checkbox" :id "tmau" :name "tmau" :value "tmau"
-                   :on-change #(handle-filter-change (get-value %))})
-        ($ :label.filterLabel {:htmlFor "tmau"} "TMAU Friendly"))))
+  (let [[show-tmau-tip set-show-tmau-tip!] (uix.core/use-state false)
+        [show-keto-tip set-show-keto-tip!] (uix.core/use-state false)]
+    ($ :ul.filterList
+       ($ :li
+          ($ :input {:type "checkbox" :id "keto" :name "keto" :value "keto"
+                     :on-change #(handle-filter-change (get-value %))})
+          ($ :label.filterLabel {:html-for "keto"
+                                 :on-mouse-leave #(set-show-keto-tip! false)
+                                 :on-mouse-enter #(set-show-keto-tip! true)} "Keto Friendly")
+          ($ :div.toolTip {:id "ketoTip" :style {:display (if show-keto-tip :block :none)}} keto-tip))
+       ($ :li
+          ($ :input {:type "checkbox" :id "tmau" :name "tmau" :value "tmau"
+                     :on-change #(handle-filter-change (get-value %))})
+          ($ :label.filterLabel {:html-for "tmau"
+                                 :on-mouse-leave #(set-show-tmau-tip! false)
+                                 :on-mouse-enter #(set-show-tmau-tip! true)} "TMAU Friendly")
+          ($ :div.toolTip {:id "tmauTip" :style {:display (if show-tmau-tip :block :none)}} tmau-tip)))))
 
 (defui message-view [{:keys [in-default-state? food-not-found? food-name missing-info? can-eat? nutrients]}]
   (let [message (cond
