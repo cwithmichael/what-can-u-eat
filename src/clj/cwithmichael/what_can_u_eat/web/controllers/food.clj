@@ -57,17 +57,19 @@
    :food-nutrients (map #(convert-usda-nutrient-to-nutrient (:fdcId food) %) (:foodNutrients food))})
 
 (defn fetch-food-data-from-api [api-key query]
-  (let [food-data (parse-string (:body
-                                 (client/post
-                                  (str "https://api.nal.usda.gov/fdc/v1/foods/search?api_key=" api-key)
-                                  {:form-params {:query query :dataType ["Foundation", "SR Legacy"]
-                                                 :pageNumber 1
-                                                 :pageSize 25}
-                                   :content-type :json
-                                   :socket-timeout 1000      ;; in milliseconds
-                                   :connection-timeout 1000  ;; in milliseconds
-                                   :accept :json})) true)]
-    (first (sort-by :score #(> %1 %2) (:foods food-data)))))
+  (try
+    (let [food-data (parse-string (:body
+                                   (client/post
+                                    (str "https://api.nal.usda.gov/fdc/v1/foods/search?api_key=" api-key)
+                                    {:form-params {:query query :dataType ["Foundation", "SR Legacy"]
+                                                   :pageNumber 1
+                                                   :pageSize 25}
+                                     :content-type :json
+                                     :socket-timeout 1000      ;; in milliseconds
+                                     :connection-timeout 1000  ;; in milliseconds
+                                     :accept :json})) true)]
+      (first (sort-by :score #(> %1 %2) (:foods food-data))))
+    (catch Exception e (log/error e))))
 
 (def storage "food-cache")
 
@@ -86,6 +88,7 @@
         saved-food (check-cache cache query)]
     (if (nil? saved-food)
       (let [data (fetch-food-data-from-api (:usda-api-key secrets) query)]
-        (update-cache cache query data)
-        (http-response/ok {:food (convert-usda-food-to-food  data)}))
+        (if (nil? data) (http-response/not-found)
+            (do (update-cache cache query data)
+                (http-response/ok {:food (convert-usda-food-to-food  data)}))))
       (http-response/ok {:food (convert-usda-food-to-food  saved-food)}))))
