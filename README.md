@@ -1,6 +1,6 @@
 # what-can-u-eat
 
-Requirments
+## Requirments
 
 In order to use the USDA API you need a key.
 You can request one from their website: https://fdc.nal.usda.gov/api-key-signup
