@@ -1,5 +1,15 @@
 # what-can-u-eat
 
+Requirments
+
+In order to use the USDA API you need a key.
+You can request one from their website: https://fdc.nal.usda.gov/api-key-signup
+
+Once you have the key you'll need to create a `secrets.edn` file in the resources directory next to the `system.edn` file.
+The contents of that file should look like:
+
+`{:usda-api-key "<your api key>"}`
+
 Start a [REPL](#repls) in your editor or terminal of choice.
 
 Start the server with:
@@ -8,6 +18,7 @@ Start the server with:
 (go)
 ```
 
+The UI is available at http://localhost:3000
 The default API is available under http://localhost:3000/api
 
 System configuration is available under `resources/system.edn`.

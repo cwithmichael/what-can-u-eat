@@ -20,7 +20,7 @@
 (defn check-keto [nutrients]
   (map (fn [nut] (cond
                    (= (:nutrient-id nut) (:carbs nutrient-map)) (< (:value nut) 10))) nutrients))
-
+;; TODO: Implement actual logic to check nutrients and calculate net carbs
 (defn check-nutrients [food-nutrients filters]
   (let [choline (parse-nutrients food-nutrients [:choline])
         carbs (parse-nutrients food-nutrients [:carbs])
