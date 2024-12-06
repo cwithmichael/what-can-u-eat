@@ -55,6 +55,11 @@
   font-weight: 600;
 }
 
+.footer {
+  margin-top: 20px;
+  text-align: center;
+}
+
 .messageTextFailure {
   color: red;
 }
