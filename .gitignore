@@ -19,5 +19,5 @@ modules/
 .calva/output-window/
 .lsp/.cache/
 
-./resources/secrets.edn
+resources/secrets.edn
 what-can-u-eat_dev.db
