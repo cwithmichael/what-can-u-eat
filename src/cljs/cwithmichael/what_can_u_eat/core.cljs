@@ -28,14 +28,15 @@
      ($ :li
         ($ :input {:type "checkbox" :id "keto" :name "keto" :value "keto"
                    :on-change #(handle-filter-change (get-value %))})
-        ($ :label {:for "keto"} "Keto Friendly"))
+        ($ :label.filterLabel {:for "keto"} "Keto Friendly"))
      ($ :li
         ($ :input {:type "checkbox" :id "tmau" :name "tmau" :value "tmau"
                    :on-change #(handle-filter-change (get-value %))})
-        ($ :label {:htmlFor "tmau"} "TMAU Friendly"))))
+        ($ :label.filterLabel {:htmlFor "tmau"} "TMAU Friendly"))))
 
-(defui message-view [{:keys [in-default-state? food-name missing-info? can-eat? nutrients]}]
+(defui message-view [{:keys [in-default-state? food-not-found? food-name missing-info? can-eat? nutrients]}]
   (let [message (cond
+                  food-not-found? "Food not found"
                   in-default-state? nil
                   missing-info? ($ :span.messageTextFailure "Missing information to determine")
                   can-eat? ($ :span.messageTextSuccess "You can eat it! Just make sure to watch your total daily intake.")
@@ -68,29 +69,39 @@
 (defui home-page []
   (let [[filters set-filters!] (uix.core/use-state [])
         [food set-food!] (uix.core/use-state nil)
+        [food-not-found? set-food-not-found!] (uix.core/use-state false)
         [can-eat? set-can-eat!] (uix.core/use-state false)
         [nutrients set-nutrients!] (uix.core/use-state nil)
         [in-default-state? set-in-default-state!] (uix.core/use-state true)
         [in-loading-state? set-in-loading-state!] (uix.core/use-state false)
         [missing-info? set-missing-info!] (uix.core/use-state false)
-        check-food (fn [food-data filters]
-                     #_{:clj-kondo/ignore [:unresolved-var]}
-                     (POST "http://localhost:3000/api/checkFood"
-                       {:handler (fn [response]
-                                   (set-missing-info! (:missing-info response))
-                                   (set-can-eat! (:status response)))
-                        :params {:food food-data :filters filters}}))
         handle-filter-change (fn [val]
                                (if (some  #(= % val)  filters)
                                  (set-filters! (into [] (filter #(not= % val) filters)))
                                  (set-filters! (conj filters val))))
+        handle-api-error (fn [{:keys [status status-text]}]
+                           (set-food! nil)
+                           (set-nutrients! nil)
+                           (set-food-not-found! true)
+                           (set-in-loading-state! false)
+                           (.log js/console (str status " " status-text)))
+        check-food (fn [food-data filters]
+                     #_{:clj-kondo/ignore [:unresolved-var]}
+                     (POST "/api/checkFood"
+                       {:error-handler handle-api-error
+                        :handler (fn [response]
+                                   (set-missing-info! (:missing-info response))
+                                   (set-can-eat! (:status response)))
+                        :params {:food food-data :filters filters}}))
         handle-submit (fn [e query]
                         (.preventDefault e)
                         (set-in-loading-state! true)
                         (set-in-default-state! false)
+                        (set-food-not-found! false)
                         #_{:clj-kondo/ignore [:unresolved-var]}
-                        (GET (str "http://localhost:3000/api/food/" query)
-                          {:handler (fn [response]
+                        (GET (str "/api/food/" query)
+                          {:error-handler handle-api-error
+                           :handler (fn [response]
                                       (set-food! (:food response))
                                       (set-nutrients! (-> response :food :food-nutrients))
                                       (check-food response filters)
@@ -105,6 +116,7 @@
                             :food-name (:description food)
                             :missing-info? missing-info?
                             :can-eat? can-eat?
+                            :food-not-found? food-not-found?
                             :nutrients nutrients})))))
 
 ;; -------------------------

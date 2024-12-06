@@ -16,8 +16,12 @@ modules/
 
 # clj-kondo
 .clj-kondo/.cache/
+
 .calva/output-window/
 .lsp/.cache/
-
+resources/.lsp/.cache
 resources/secrets.edn
+resources/public/js/
+resources/.clj-kondo/.cache/
+
 what-can-u-eat_dev.db
