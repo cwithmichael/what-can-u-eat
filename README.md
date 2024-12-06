@@ -10,6 +10,8 @@ The contents of that file should look like:
 
 `{:usda-api-key "<your api key>"}`
 
+If you want redis caching, then run a local redis server on the default redis port.
+
 Start a [REPL](#repls) in your editor or terminal of choice.
 
 Start the server with:
