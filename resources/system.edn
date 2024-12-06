@@ -2,6 +2,7 @@
  #profile {:dev :dev
            :test :test
            :prod :prod}
+ :system/secrets #include "secrets.edn"
 
  :server/http
  {:port #long #or [#env PORT 3000]
@@ -10,7 +11,7 @@
  :handler/ring
  {:router #ig/ref :router/core
   :api-path "/api"
-  :cookie-secret #or [#env COOKIE_SECRET "KGYBVOAYAXLDINWB"]
+  :cookie-secret #ref [:system/secrets :cookie-secret]
   ;; from ring.middleware.defaults. anti-forgery `false` by default because services may not require it
   :site-defaults-config {:params {:urlencoded true
                                   :multipart true
@@ -43,7 +44,7 @@
  {:base-path "/api"
   :env #ig/ref :system/env
   :cache #ig/ref :cache/redis
-  :secrets #include "secrets.edn"
+  :usda-api-key #ref [:system/secrets :usda-api-key]
   :query-fn #ig/ref :db.sql/query-fn}
 
  :router/routes

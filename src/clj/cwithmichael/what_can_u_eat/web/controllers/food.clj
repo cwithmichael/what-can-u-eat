@@ -83,11 +83,11 @@
     (wcar cache (car/hset storage query data))
     (catch Exception e (log/error e))))
 
-(defn get-food [{:keys [cache secrets]} request]
+(defn get-food [{:keys [cache usda-api-key]} request]
   (let [query (:food (:path-params request))
         saved-food (check-cache cache query)]
     (if (nil? saved-food)
-      (let [data (fetch-food-data-from-api (:usda-api-key secrets) query)]
+      (let [data (fetch-food-data-from-api usda-api-key query)]
         (if (nil? data) (http-response/not-found)
             (do (update-cache cache query data)
                 (http-response/ok {:food (convert-usda-food-to-food  data)}))))
