@@ -15,21 +15,20 @@
 (defn parse-nutrients [nutrients tag]
   (first (filter #(= (:nutrient-id %) (tag nutrient-map)) nutrients)))
 
-(defn calculate-net-carbs [fiber sugars carbs]
-  (when (every? number? [fiber sugars carbs])
-    (- carbs fiber sugars)))
+(defn calculate-net-carbs [fiber carbs]
+  (when (every? number? [fiber carbs])
+    (- carbs fiber)))
 
 (defn check-nutrients [food-nutrients filters]
   (let [choline (parse-nutrients food-nutrients :choline)
         carbs (parse-nutrients food-nutrients :carbs)
         fiber (parse-nutrients food-nutrients :fiber)
-        sugars (parse-nutrients food-nutrients :sugars)
-        net-carbs (calculate-net-carbs (:value fiber) (:value sugars) (:value carbs))
+        net-carbs (calculate-net-carbs (:value fiber) (:value carbs))
         is-low-carb? (if (nil? net-carbs) false (< net-carbs 12))
         is-low-choline?  (if (nil? (:value choline)) false (< (:value choline) 200))]
     {:can-eat? (every? true? (map #(cond
                                      (= % "tmau") (and (some? choline) is-low-choline?)
-                                     (= % "keto") (and (some? carbs) (some? sugars) (some? fiber) is-low-carb?)
+                                     (= % "keto") (and (some? carbs) (some? fiber) is-low-carb?)
                                      :else false) filters)) :choline-missing? (nil? choline) :carbs-missing? (nil? net-carbs)}))
 
 (defn foodcheck

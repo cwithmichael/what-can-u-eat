@@ -2,18 +2,25 @@
   #_{:clj-kondo/ignore [:unresolved-var]}
   (:require
    [ajax.core :refer [POST GET]]
+   [goog.string :as gstring]
+   [goog.string.format]
    [uix.core :refer [$ defui]]
    [uix.dom]))
 
 (defn get-value [val] (-> val .-target .-value))
 
-(defn calculate-net-carbs [fiber sugars carbs]
-  (- carbs fiber sugars))
+(defn calculate-net-carbs [fiber carbs]
+  (when (every? number? [fiber carbs])
+    (gstring/format "%.2f" (- carbs fiber))))
 
 (def nutrient-map {:choline 1180
                    :carbs 1005
                    :sugars 2000
                    :fiber 1079})
+
+(defn parse-nutrients [nutrients tag]
+  (first (filter #(= (:nutrient-id %) (tag nutrient-map)) nutrients)))
+
 ;; -------------------------
 ;; Views 
 (defui filter-list [{:keys [handle-filter-change]}]
@@ -33,21 +40,20 @@
                   missing-info? ($ :span.messageTextFailure "Missing information to determine")
                   can-eat? ($ :span.messageTextSuccess "You can eat it! Just make sure to watch your total daily intake.")
                   :else ($ :span.messageTextFailure "You should probably not eat it."))
-        sugars (first (filter #(= (:nutrient-id %) (:sugars nutrient-map)) nutrients))
-        choline (first (filter #(= (:nutrient-id %) (:choline nutrient-map)) nutrients))
-        fiber (first (filter #(= (:nutrient-id %) (:fiber nutrient-map)) nutrients))
-        carbs (first (filter #(= (:nutrient-id %) (:carbs nutrient-map)) nutrients))
-        net-carbs (calculate-net-carbs
-                   fiber sugars carbs)]
+        sugars (parse-nutrients nutrients :sugars)
+        choline (parse-nutrients nutrients :choline)
+        fiber (parse-nutrients nutrients :fiber)
+        carbs (parse-nutrients nutrients :carbs)
+        net-carbs (calculate-net-carbs (:value fiber) (:value carbs))]
     ($ :div.message
        message
-       (when (some? food-name) ($ :p (str "Food description: " food-name)))
+       (when (some? food-name) ($ :p.foodDescription (str "Food description: " food-name)))
        (when (and (some? nutrients) (not missing-info?)) ($ :div.nutrients
-                                                            (when net-carbs ($ :span.nutrient (str "Net Carbs: " (:value net-carbs) (:unit-name net-carbs))))
-                                                            (when sugars ($ :span.nutrient (str "Sugars: " (:value sugars) (:unit-name sugars))))
-                                                            (when fiber ($ :span.nutrient (str "Fiber: " (:value fiber) (:unit-name fiber))))
-                                                            (when carbs ($ :span.nutrient (str "Total Carbs: " (:value carbs) (:unit-name carbs))))
-                                                            (when choline ($ :span.nutrient (str "Choline: " (:value choline) (:unit-name choline)))))))))
+                                                            (when net-carbs ($ :p.nutrient (str "Net Carbs: " net-carbs "g")))
+                                                            (when sugars ($ :p.nutrient (str "Sugars: " (:value sugars) (:unit-name sugars))))
+                                                            (when fiber ($ :p.nutrient (str "Fiber: " (:value fiber) (:unit-name fiber))))
+                                                            (when carbs ($ :p.nutrient (str "Total Carbs: " (:value carbs) (:unit-name carbs))))
+                                                            (when choline ($ :p.nutrient (str "Choline: " (:value choline) (:unit-name choline)))))))))
 
 (defui search-form [{:keys [handle-submit filters handle-filter-change]}]
   (let [[query set-query!] (uix.core/use-state "")]

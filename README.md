@@ -20,6 +20,13 @@ Start the server with:
 (go)
 ```
 
+Start the ui in a seprate term with:
+
+```
+npm install
+npx shadow-cljs watch app
+```
+
 The UI is available at http://localhost:3000
 The default API is available under http://localhost:3000/api
 
