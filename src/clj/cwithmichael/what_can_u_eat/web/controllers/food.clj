@@ -28,8 +28,8 @@
         is-low-carb? (if (nil? net-carbs) false (< net-carbs 12))
         is-low-choline?  (if (nil? (:value choline)) false (< (:value choline) 200))]
     {:can-eat? (every? true? (map #(cond
-                                     (= % "tmau") (and (not= nil choline) is-low-choline?)
-                                     (= % "keto") (and (not= nil carbs) (not= nil sugars) (not= nil fiber) is-low-carb?)
+                                     (= % "tmau") (and (some? choline) is-low-choline?)
+                                     (= % "keto") (and (some? carbs) (some? sugars) (some? fiber) is-low-carb?)
                                      :else false) filters)) :choline-missing? (nil? choline) :carbs-missing? (nil? net-carbs)}))
 
 (defn foodcheck

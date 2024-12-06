@@ -41,13 +41,13 @@
                    fiber sugars carbs)]
     ($ :div.message
        message
-       (when (not= nil food-name) ($ :p (str "Food description: " food-name)))
-       (when (and (not= nil nutrients) (not missing-info?)) ($ :div.nutrients
-                                                               (when net-carbs ($ :span.nutrient (str "Net Carbs: " (:value net-carbs) (:unit-name net-carbs))))
-                                                               (when sugars ($ :span.nutrient (str "Sugars: " (:value sugars) (:unit-name sugars))))
-                                                               (when fiber ($ :span.nutrient (str "Fiber: " (:value fiber) (:unit-name fiber))))
-                                                               (when carbs ($ :span.nutrient (str "Total Carbs: " (:value carbs) (:unit-name carbs))))
-                                                               (when choline ($ :span.nutrient (str "Choline: " (:value choline) (:unit-name choline)))))))))
+       (when (some? food-name) ($ :p (str "Food description: " food-name)))
+       (when (and (some? nutrients) (not missing-info?)) ($ :div.nutrients
+                                                            (when net-carbs ($ :span.nutrient (str "Net Carbs: " (:value net-carbs) (:unit-name net-carbs))))
+                                                            (when sugars ($ :span.nutrient (str "Sugars: " (:value sugars) (:unit-name sugars))))
+                                                            (when fiber ($ :span.nutrient (str "Fiber: " (:value fiber) (:unit-name fiber))))
+                                                            (when carbs ($ :span.nutrient (str "Total Carbs: " (:value carbs) (:unit-name carbs))))
+                                                            (when choline ($ :span.nutrient (str "Choline: " (:value choline) (:unit-name choline)))))))))
 
 (defui search-form [{:keys [handle-submit filters handle-filter-change]}]
   (let [[query set-query!] (uix.core/use-state "")]
