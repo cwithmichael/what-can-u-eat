@@ -30,7 +30,7 @@
     {:can-eat? (every? true? (map #(cond
                                      (= % "tmau") (and (not= nil choline) is-low-choline?)
                                      (= % "keto") (and (not= nil carbs) (not= nil sugars) (not= nil fiber) is-low-carb?)
-                                     :else false) filters)) :choline-missing? (empty? choline) :carbs-missing? (nil? net-carbs)}))
+                                     :else false) filters)) :choline-missing? (nil? choline) :carbs-missing? (nil? net-carbs)}))
 
 (defn foodcheck
   [{:keys [body-params]}]
