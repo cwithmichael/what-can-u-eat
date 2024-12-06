@@ -21,6 +21,10 @@
                                             :exclusions [com.cognitect/transit-clj]}
            metosin/muuntaja {:mvn/version "0.6.8"}
 
+           ;; Redis
+           org.clojure/core.cache     {:mvn/version "1.0.225"}
+           com.taoensso/carmine       {:mvn/version "3.2.0"}
+
            ;; kit Libs
            io.github.kit-clj/kit-core {:mvn/version "1.0.9"}
            io.github.kit-clj/kit-undertow {:mvn/version "1.0.7"}

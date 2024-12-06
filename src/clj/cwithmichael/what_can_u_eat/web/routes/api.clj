@@ -33,13 +33,13 @@
                 exception/wrap-exception]})
 
 ;; Routes
-(defn api-routes [_opts]
+(defn api-routes [opts]
   [["/swagger.json"
     {:get {:no-doc  true
            :swagger {:info {:title "cwithmichael.what-can-u-eat API"}}
            :handler (swagger/create-swagger-handler)}}]
    ["/checkFood" {:post food/foodcheck}]
-   ["/food/:food" {:get food/get-food}]
+   ["/food/:food" {:get (partial food/get-food opts)}]
    ["/health"
     {:get health/healthcheck!}]])
 
@@ -50,3 +50,8 @@
       :or   {base-path ""}
       :as   opts}]
   (fn [] [base-path route-data (api-routes opts)]))
+
+(defmethod ig/init-key :cache/redis
+  [_ {:keys [conn]}]
+  (defonce my-conn-pool (:pool conn)) ; Create a new stateful pool
+  {:pool my-conn-pool, :spec (:spec conn)})

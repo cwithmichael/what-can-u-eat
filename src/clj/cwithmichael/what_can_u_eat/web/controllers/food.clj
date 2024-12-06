@@ -3,8 +3,7 @@
    [cheshire.core :refer [parse-string]]
    [clj-http.client :as client]
    [clojure.string]
-   [cwithmichael.what-can-u-eat.env :refer [defaults]]
-   [cwithmichael.what-can-u-eat.config :refer [system-config]]
+   [taoensso.carmine :as car :refer [wcar]]
    [ring.util.http-response :as http-response]))
 
 (def nutrient-map {:choline 1180
@@ -56,19 +55,26 @@
    :data-type (:dataType food)
    :food-nutrients (map #(convert-usda-nutrient-to-nutrient (:fdcId food) %) (:foodNutrients food))})
 
-(defn get-food [{:keys [path-params]}]
-  (let [config (system-config (or (:opts defaults) {}))
-        query (:food path-params)
-        food-data (parse-string (:body
+(defn fetch-food-data-from-api [api-key query]
+  (let [food-data (parse-string (:body
                                  (client/post
-                                  (str "https://api.nal.usda.gov/fdc/v1/foods/search?api_key="
-                                       (-> config :system/secrets :secrets :usda-api-key))
+                                  (str "https://api.nal.usda.gov/fdc/v1/foods/search?api_key=" api-key)
                                   {:form-params {:query query :dataType ["Foundation", "SR Legacy"]
                                                  :pageNumber 1
                                                  :pageSize 25}
                                    :content-type :json
                                    :socket-timeout 1000      ;; in milliseconds
                                    :connection-timeout 1000  ;; in milliseconds
-                                   :accept :json})) true)
-        food (first (sort-by :score (:foods food-data)))]
-    (http-response/ok {:food (convert-usda-food-to-food  food)})))
+                                   :accept :json})) true)]
+    (first (sort-by :score #(> %1 %2) (:foods food-data)))))
+
+(def storage "food-cache")
+
+(defn get-food [{:keys [cache secrets]} request]
+  (let [query (:food (:path-params request))
+        saved-food (wcar cache (car/hget storage query))]
+    (if (nil? saved-food)
+      (let [data (fetch-food-data-from-api (:usda-api-key secrets) query)]
+        (wcar cache (car/hset storage query data))
+        (http-response/ok {:food (convert-usda-food-to-food  data)}))
+      (http-response/ok {:food (convert-usda-food-to-food  saved-food)}))))

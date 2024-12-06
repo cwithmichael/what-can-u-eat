@@ -7,8 +7,6 @@
  {:port #long #or [#env PORT 3000]
   :host #or [#env HTTP_HOST "0.0.0.0"]
   :handler #ig/ref :handler/ring}
- :system/secrets
- {:secrets #include "secrets.edn"}
  :handler/ring
  {:router #ig/ref :router/core
   :api-path "/api"
@@ -34,10 +32,18 @@
                                      :absolute-redirects true
                                      :content-types true
                                      :default-charset "utf-8"}}}
+ :cache/redis
+ {:ttl  3600
+  :conn {:pool {}
+         :spec #profile {:dev  {:host "localhost" :port 6379}
+                         :test {:host "localhost" :port 6379}
+                         :prod {:uri #env REDIS_URI}}}}
 
  :reitit.routes/api
  {:base-path "/api"
   :env #ig/ref :system/env
+  :cache #ig/ref :cache/redis
+  :secrets #include "secrets.edn"
   :query-fn #ig/ref :db.sql/query-fn}
 
  :router/routes
