@@ -11,26 +11,26 @@
                    :carbs 1005
                    :sugars 2000
                    :fiber 1079})
-(defn parse-nutrients [nutrients tags]
-  (filter (fn [nutrient] (= (:nutrient-id nutrient) ((first tags) nutrient-map))) nutrients))
 
-(defn check-tmau [nutrients]
-  (map (fn [nut] (cond
-                   (= (:nutrient-id nut) (:choline nutrient-map)) (< (:value nut) 100))) nutrients))
+(defn parse-nutrients [nutrients tag]
+  (first (filter #(= (:nutrient-id %) (tag nutrient-map)) nutrients)))
 
-(defn check-keto [nutrients]
-  (map (fn [nut] (cond
-                   (= (:nutrient-id nut) (:carbs nutrient-map)) (< (:value nut) 10))) nutrients))
-;; TODO: Implement actual logic to check nutrients and calculate net carbs
+(defn calculate-net-carbs [fiber sugars carbs]
+  (when (every? number? [fiber sugars carbs])
+    (- carbs fiber sugars)))
+
 (defn check-nutrients [food-nutrients filters]
-  (let [choline (parse-nutrients food-nutrients [:choline])
-        carbs (parse-nutrients food-nutrients [:carbs])
-        is-low-carb? (every? true? (check-keto carbs))
-        is-low-choline?  (every? true? (check-tmau choline))]
+  (let [choline (parse-nutrients food-nutrients :choline)
+        carbs (parse-nutrients food-nutrients :carbs)
+        fiber (parse-nutrients food-nutrients :fiber)
+        sugars (parse-nutrients food-nutrients :sugars)
+        net-carbs (calculate-net-carbs (:value fiber) (:value sugars) (:value carbs))
+        is-low-carb? (if (nil? net-carbs) false (< net-carbs 12))
+        is-low-choline?  (if (nil? (:value choline)) false (< (:value choline) 200))]
     {:can-eat? (every? true? (map #(cond
-                                     (= % "tmau") (and (some? (seq choline)) is-low-choline?)
-                                     (= % "keto") (and (some? (seq carbs)) is-low-carb?)
-                                     :else false) filters)) :choline-missing? (empty? choline) :carbs-missing? (empty? carbs)}))
+                                     (= % "tmau") (and (not= nil choline) is-low-choline?)
+                                     (= % "keto") (and (not= nil carbs) (not= nil sugars) (not= nil fiber) is-low-carb?)
+                                     :else false) filters)) :choline-missing? (empty? choline) :carbs-missing? (nil? net-carbs)}))
 
 (defn foodcheck
   [{:keys [body-params]}]

@@ -7,6 +7,13 @@
 
 (defn get-value [val] (-> val .-target .-value))
 
+(defn calculate-net-carbs [fiber sugars carbs]
+  (- carbs fiber sugars))
+
+(def nutrient-map {:choline 1180
+                   :carbs 1005
+                   :sugars 2000
+                   :fiber 1079})
 ;; -------------------------
 ;; Views 
 (defui filter-list [{:keys [handle-filter-change]}]
@@ -26,15 +33,20 @@
                   missing-info? ($ :span.messageTextFailure "Missing information to determine")
                   can-eat? ($ :span.messageTextSuccess "You can eat it! Just make sure to watch your total daily intake.")
                   :else ($ :span.messageTextFailure "You should probably not eat it."))
-        net-carbs (first (filter #(= (:nutrient-id %) 1005) nutrients))
-        sugar (first (filter #(= (:nutrient-id %) 2000) nutrients))
-        choline (first (filter #(= (:nutrient-id %) 1180) nutrients))]
+        sugars (first (filter #(= (:nutrient-id %) (:sugars nutrient-map)) nutrients))
+        choline (first (filter #(= (:nutrient-id %) (:choline nutrient-map)) nutrients))
+        fiber (first (filter #(= (:nutrient-id %) (:fiber nutrient-map)) nutrients))
+        carbs (first (filter #(= (:nutrient-id %) (:carbs nutrient-map)) nutrients))
+        net-carbs (calculate-net-carbs
+                   fiber sugars carbs)]
     ($ :div.message
        message
        (when (not= nil food-name) ($ :p (str "Food description: " food-name)))
        (when (and (not= nil nutrients) (not missing-info?)) ($ :div.nutrients
                                                                (when net-carbs ($ :span.nutrient (str "Net Carbs: " (:value net-carbs) (:unit-name net-carbs))))
-                                                               (when sugar ($ :span.nutrient (str "Sugars: " (:value sugar) (:unit-name sugar))))
+                                                               (when sugars ($ :span.nutrient (str "Sugars: " (:value sugars) (:unit-name sugars))))
+                                                               (when fiber ($ :span.nutrient (str "Fiber: " (:value fiber) (:unit-name fiber))))
+                                                               (when carbs ($ :span.nutrient (str "Total Carbs: " (:value carbs) (:unit-name carbs))))
                                                                (when choline ($ :span.nutrient (str "Choline: " (:value choline) (:unit-name choline)))))))))
 
 (defui search-form [{:keys [handle-submit filters handle-filter-change]}]
@@ -59,7 +71,6 @@
                      #_{:clj-kondo/ignore [:unresolved-var]}
                      (POST "http://localhost:3000/api/checkFood"
                        {:handler (fn [response]
-                                   (println response)
                                    (set-missing-info! (:missing-info response))
                                    (set-can-eat! (:status response)))
                         :params {:food food-data :filters filters}}))
