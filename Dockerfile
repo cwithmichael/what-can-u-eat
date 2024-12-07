@@ -9,6 +9,7 @@ RUN apt-get install -y rlwrap
 RUN curl -L -O https://github.com/clojure/brew-install/releases/latest/download/posix-install.sh
 RUN chmod +x ./posix-install.sh
 RUN ./posix-install.sh
+RUN npm install
 RUN clj -Sforce -T:build all
 
 FROM timbru31/java-node
