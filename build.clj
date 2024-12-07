@@ -12,7 +12,7 @@
     (when-not (zero? exit)
       (throw (ex-info "could not compile cljs" s)))
     (copy-tree "target/classes/cljsbuild/public" "target/classes/public")
-    (io/copy (io/file "target/classes/public/js/app.js")
+    (io/copy (io/file "target/classes/cljsbuild/public/js/app.js")
              (io/file "resources/public/js/app.js"))))
 
 (def lib 'cwithmichael/what-can-u-eat)
