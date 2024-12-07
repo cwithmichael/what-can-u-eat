@@ -21,8 +21,11 @@
 (defn parse-nutrients [nutrients tag]
   (first (filter #(= (:nutrient-id %) (tag nutrient-map)) nutrients)))
 
-(def keto-tip "The keto diet, or ketogenic diet, is a low-carb, high-fat diet that aims to: Promote weight loss, Improve mental clarity, and Increase energy levels")
-(def tmau-tip "TMAU occurs when the body produces too much trimethylamine (TMA), a volatile amine that's a byproduct of choline metabolism by gut bacteria. TMA builds up in the body and is released in sweat, urine, and breath, causing a strong odor.")
+(def keto-tip "The keto diet, or ketogenic diet, is a low-carb, high-fat diet that aims to: 
+                    Promote weight loss, Improve mental clarity, and Increase energy levels")
+(def tmau-tip "TMAU occurs when the body produces too much trimethylamine (TMA), 
+               a volatile amine that's a byproduct of choline metabolism by gut bacteria. 
+               TMA builds up in the body and is released in sweat, urine, and breath, causing a strong odor.")
 
 ;; -------------------------
 ;; Views 

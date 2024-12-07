@@ -2,10 +2,10 @@
   (:require
    [cheshire.core :refer [parse-string]]
    [clj-http.client :as client]
+   [clojure.core.cache.wrapped :as w]
    [clojure.string]
    [clojure.tools.logging :as log]
-   [ring.util.http-response :as http-response]
-   [taoensso.carmine :as car :refer [wcar]]))
+   [ring.util.http-response :as http-response]))
 
 (def nutrient-map {:choline 1180
                    :carbs 1005
@@ -70,24 +70,14 @@
       (first (sort-by :score #(> %1 %2) (:foods food-data))))
     (catch Exception e (log/error e))))
 
-(def storage "food-cache")
+(def food-cache (w/fifo-cache-factory {}))
 
-(defn check-cache [cache query]
-  (try
-    (wcar cache (car/hget storage query))
-    (catch Exception e (log/error e))))
-
-(defn update-cache [cache query data]
-  (try
-    (wcar cache (car/hset storage query data))
-    (catch Exception e (log/error e))))
-
-(defn get-food [{:keys [cache usda-api-key]} request]
+(defn get-food [{:keys [usda-api-key]} request]
   (let [query (:food (:path-params request))
-        saved-food (check-cache cache query)]
-    (if (nil? saved-food)
+        saved-food (w/lookup food-cache (keyword query))]
+    (if (some? saved-food)
+      (http-response/ok {:food (convert-usda-food-to-food  saved-food)})
       (let [data (fetch-food-data-from-api usda-api-key query)]
         (if (nil? data) (http-response/not-found)
-            (do (update-cache cache query data)
-                (http-response/ok {:food (convert-usda-food-to-food  data)}))))
-      (http-response/ok {:food (convert-usda-food-to-food  saved-food)}))))
+            (do (w/through-cache food-cache (keyword query) (constantly data))
+                (http-response/ok {:food (convert-usda-food-to-food  data)})))))))
