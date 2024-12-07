@@ -12,8 +12,7 @@
     (when-not (zero? exit)
       (throw (ex-info "could not compile cljs" s)))
     (copy-tree "target/classes/cljsbuild/public" "target/classes/public")
-    (io/copy (io/file "target/classes/public/js/app.js")
-             (io/file "resources/public/js/app.js"))))
+    (copy-tree "target/classes/cljsbuild/public" "resources/public")))
 
 (def lib 'cwithmichael/what-can-u-eat)
 (def main-cls (string/join "." (filter some? [(namespace lib) (name lib) "core"])))
