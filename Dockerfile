@@ -1,6 +1,8 @@
 # syntax = docker/dockerfile:1.2
 FROM timbru31/java-node AS build
 
+ENV PORT=3000
+
 WORKDIR /usr/app
 COPY . /usr/app
 RUN apt-get update

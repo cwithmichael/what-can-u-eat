@@ -33,12 +33,6 @@
                                      :absolute-redirects true
                                      :content-types true
                                      :default-charset "utf-8"}}}
- :cache/redis
- {:ttl  3600
-  :conn {:pool {}
-         :spec #profile {:dev  {:host "localhost" :port 6379}
-                         :test {:host "localhost" :port 6379}
-                         :prod {:uri #env REDIS_URI}}}}
 
  :reitit.routes/api
  {:base-path "/api"
