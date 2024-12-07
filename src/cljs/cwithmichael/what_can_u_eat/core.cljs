@@ -33,14 +33,14 @@
   (let [[show-tmau-tip set-show-tmau-tip!] (uix.core/use-state false)
         [show-keto-tip set-show-keto-tip!] (uix.core/use-state false)]
     ($ :ul.filterList
-       ($ :li
+       ($ :li.filter
           ($ :input {:type "checkbox" :id "keto" :name "keto" :value "keto"
                      :on-change #(handle-filter-change (get-value %))})
           ($ :label.filterLabel {:html-for "keto"
                                  :on-mouse-leave #(set-show-keto-tip! false)
                                  :on-mouse-enter #(set-show-keto-tip! true)} "Keto Friendly")
           ($ :div.toolTip {:id "ketoTip" :style {:display (if show-keto-tip :block :none)}} keto-tip))
-       ($ :li
+       ($ :li.filter
           ($ :input {:type "checkbox" :id "tmau" :name "tmau" :value "tmau"
                      :on-change #(handle-filter-change (get-value %))})
           ($ :label.filterLabel {:html-for "tmau"

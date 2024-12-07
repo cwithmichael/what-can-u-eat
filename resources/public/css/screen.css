@@ -83,6 +83,11 @@
   margin-top: 10px;
 }
 
+.filter {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
 .filterLabel {
   margin-left: 10px;
 }
