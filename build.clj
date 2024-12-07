@@ -1,10 +1,19 @@
 (ns build
   (:require [clojure.string :as string]
             [clojure.tools.build.api :as b]
+            [clojure.java.io :as io]
             [babashka.fs :refer [copy-tree]]
             [babashka.process :refer [shell]]))
 
-(defn build-cljs [] (println "npx shadow-cljs release app...") (let [{:keys [exit], :as s} (shell "npx shadow-cljs release app -v")] (when-not (zero? exit) (throw (ex-info "could not compile cljs" s))) (copy-tree "target/classes/cljsbuild/public" "target/classes/public")))
+(defn build-cljs []
+  (println "npx shadow-cljs release app...")
+  (let [{:keys [exit], :as s}
+        (shell "npx shadow-cljs release app -v")]
+    (when-not (zero? exit)
+      (throw (ex-info "could not compile cljs" s)))
+    (copy-tree "target/classes/cljsbuild/public" "target/classes/public")
+    (io/copy (io/file "target/classes/public/js/app.js")
+             (io/file "resources/public/js/app.js"))))
 
 (def lib 'cwithmichael/what-can-u-eat)
 (def main-cls (string/join "." (filter some? [(namespace lib) (name lib) "core"])))
