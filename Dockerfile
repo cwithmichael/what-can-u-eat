@@ -18,6 +18,6 @@ FROM timbru31/java-node
 
 COPY --from=build /usr/app/target/what-can-u-eat-standalone.jar /what-can-u-eat/what-can-u-eat-standalone.jar
 
-EXPOSE $PORT
+EXPOSE 80
 
 ENTRYPOINT exec java $JAVA_OPTS -jar /what-can-u-eat/what-can-u-eat-standalone.jar
