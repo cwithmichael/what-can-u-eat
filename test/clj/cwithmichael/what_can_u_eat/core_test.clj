@@ -1,8 +1,8 @@
 (ns cwithmichael.what-can-u-eat.core-test
   (:require
-    [cwithmichael.what-can-u-eat.test-utils :as utils]
-    [clojure.test :refer :all]))
+   [clojure.test :refer :all]
+   [cwithmichael.what-can-u-eat.web.controllers.food :refer [calculate-net-carbs]]))
 
-(deftest example-test
-  (is (= 1 2)))
+(deftest calculate-net-carbs-test
+  (is (= (calculate-net-carbs 4 6) 2)))
 
