@@ -48,6 +48,7 @@ export class DeploymentStack extends cdk.Stack {
             "usda-api-key": secret,
           },
         },
+        healthCheckGracePeriod: cdk.Duration.seconds(180),
         memoryLimitMiB: 512, // Default is 512
         publicLoadBalancer: true, // Default is true,
       }
