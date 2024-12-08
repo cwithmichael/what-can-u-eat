@@ -1,9 +1,11 @@
 (ns build
-  (:require [clojure.string :as string]
-            [clojure.tools.build.api :as b]
-            [clojure.java.io :as io]
-            [babashka.fs :refer [copy-tree]]
-            [babashka.process :refer [shell]]))
+  (:require
+   [babashka.fs :refer [copy-tree]]
+   [babashka.process :refer [shell]]
+   [clojure.string :as string]
+   [clojure.tools.build.api :as b])
+  (:import
+   [java.nio.file FileAlreadyExistsException]))
 
 (defn build-cljs []
   (println "npx shadow-cljs release app...")
@@ -12,7 +14,9 @@
     (when-not (zero? exit)
       (throw (ex-info "could not compile cljs" s)))
     (copy-tree "target/classes/cljsbuild/public" "target/classes/public")
-    (copy-tree "target/classes/public" "resources/public")))
+    (try
+      (copy-tree "target/classes/public" "resources/public")
+      (catch FileAlreadyExistsException e (println e)))))
 
 (def lib 'cwithmichael/what-can-u-eat)
 (def main-cls (string/join "." (filter some? [(namespace lib) (name lib) "core"])))
