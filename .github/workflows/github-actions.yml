@@ -23,9 +23,9 @@ jobs:
           # Install just one or all simultaneously
           # The value must indicate a particular version of the tool, or use 'latest'
           # to always provision the latest version
-          cli: latest # Clojure CLI based on tools.deps
-          bb: latest # Babashka
-          clj-kondo: 2022.05.31 # Clj-kondo
+          cli: 1.11.4.1474 # Clojure CLI based on tools.deps
+          bb: 1.3.191 # Babashka
+          clj-kondo: 2024.08.01 # Clj-kondo
       - name: run linting
         run: clj-kondo --lint src
       - name: run tests
