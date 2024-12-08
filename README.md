@@ -44,7 +44,7 @@ To reload changes:
 
 1. Add data validation with something like Malli
 2. Allow the user to select ranges themselves for the nurition limits
-3. All the user to select a food item from a list of options as they type
+3. Allow the user to select a food item from a list of options as they type
 4. More tests
 5. Improve the UI
 
