@@ -15,7 +15,7 @@
       (throw (ex-info "could not compile cljs" s)))
     (copy-tree "target/classes/cljsbuild/public" "target/classes/public")
     (try
-      (copy-tree "target/classes/public" "resources/public")
+      (copy-tree "target/classes/public/js" "resources/public/js")
       (catch FileAlreadyExistsException e (println e)))))
 
 (def lib 'cwithmichael/what-can-u-eat)

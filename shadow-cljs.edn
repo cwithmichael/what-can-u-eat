@@ -6,7 +6,7 @@
                 [metosin/malli  "0.16.4"]
                 [cljs-ajax "0.7.5"] [com.pitch/uix.core "1.2.0"] [com.pitch/uix.dom "1.2.0"]]
  :builds       {:app {:target     :browser
-                      :output-dir "target/classes/cljsbuild/public"
+                      :output-dir "target/classes/cljsbuild/public/js"
                       :asset-path "/js"
                       :modules    {:app {:entries [cwithmichael.what-can-u-eat.core]
                                          :init-fn cwithmichael.what-can-u-eat.core/init!}}
