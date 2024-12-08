@@ -37,7 +37,7 @@
  :reitit.routes/api
  {:base-path "/api"
   :env #ig/ref :system/env
-  :usda-api-key #ref [:system/secrets :usda-api-key]}
+  :usda-api-key #or [#env usda-api-key #ref [:system/secrets :usda-api-key]]}
 
  :router/routes
  {:routes #ig/refset :reitit/routes}
