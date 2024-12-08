@@ -16,7 +16,7 @@
   (parser/add-tag! :csrf-field (fn [_ _] (anti-forgery-field))))
 
 (defn render
-  [request template & [params]]
+  [_request template & [params]]
   (-> (parser/render-file template
                           (assoc params :page template :csrf-token *anti-forgery-token*)
                           selmer-opts)
