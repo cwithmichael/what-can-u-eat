@@ -10,7 +10,11 @@ The contents of that file should look like:
 
 `{:usda-api-key "<your api key>"}`
 
+## Run the app
+
 Start a [REPL](#repls) in your editor or terminal of choice.
+
+`clj -M:dev`
 
 Start the server with:
 
@@ -35,6 +39,14 @@ To reload changes:
 ```clojure
 (reset)
 ```
+
+## TODO
+
+1. Add data validation with something like Malli
+2. Allow the user to select ranges themselves for the nurition limits
+3. All the user to select a food item from a list of options as they type
+4. More tests
+5. Improve the UI
 
 ## REPLs
 
